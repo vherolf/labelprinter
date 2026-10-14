@@ -1,0 +1,14 @@
+[Unit]
+Description=Labelprinter web app (Zebra GK420d + Brother PT-P710BT)
+After=network-online.target cups.service
+
+[Service]
+User=fuerederp
+# USB device nodes of the printers belong to group lp
+SupplementaryGroups=lp
+WorkingDirectory=/home/fuerederp/projects/labelprinter
+ExecStart=/home/fuerederp/projects/labelprinter/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

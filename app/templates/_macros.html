@@ -1,0 +1,53 @@
+{% macro align_select() %}
+<label>Alignment
+  <select name="align">
+    <option value="left">Left</option>
+    <option value="center" selected>Center</option>
+    <option value="right">Right</option>
+  </select>
+</label>
+{% endmacro %}
+
+{% macro numbering() %}
+<details class="numbering">
+  <summary>Numbering / batch</summary>
+  <p class="hint">Put <code>{n}</code> or <code>{n:03}</code> into any text field
+    to print a numbered series, e.g. <code>BOX-{n:03}</code> → BOX-001, BOX-002, …</p>
+  <div class="row">
+    <label>Start <input type="number" name="counter_start" value="1"></label>
+    <label>Count <input type="number" name="counter_count" value="1" min="1" max="200"></label>
+  </div>
+</details>
+{% endmacro %}
+
+{% macro preview_pane(extra='') %}
+<section class="preview-pane">
+  <div class="preview-box {{ extra }}">
+    <img id="preview" alt="Label preview">
+  </div>
+  <div id="preview-info" class="muted"></div>
+  <ul id="warnings"></ul>
+  <button type="submit" form="label-form" id="print-btn" class="primary">Print <kbd>Ctrl ↵</kbd></button>
+</section>
+{% endmacro %}
+
+{% macro history_table(entries) %}
+<div class="card table-wrap">
+  <table class="history">
+    <tbody>
+    {% for e in entries %}
+      <tr>
+        <td class="muted nowrap">{{ e.time }}</td>
+        <td><span class="tag {{ e.printer }}">{{ 'Box' if e.printer == 'zebra' else 'Tape' }}</span></td>
+        <td class="summary">{{ e.summary }}</td>
+        <td class="muted">{{ e.client }}</td>
+        <td class="nowrap actions">
+          <a class="btn" href="/{{ e.printer }}?load={{ e.id }}">Edit</a>
+          <button class="btn" data-reprint="{{ e.id }}">Reprint</button>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endmacro %}

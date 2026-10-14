@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% from "_macros.html" import align_select, numbering, preview_pane %}
+{% block title %}Boxes · Labelprinter{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Box label</h1>
+  <span class="chip" id="zebra-status">Zebra GK420d · {{ size }}</span>
+</div>
+<div class="editor">
+  <form id="label-form" data-printer="zebra" class="card">
+    <label>Title
+      <textarea name="title" rows="2" placeholder="Kitchen" autofocus></textarea>
+    </label>
+    <label>Contents
+      <textarea name="body" rows="4" placeholder="Plates&#10;Glasses&#10;Cutlery"></textarea>
+    </label>
+    <label>QR code <span class="muted">(text or URL, optional)</span>
+      <input name="qr" placeholder="https://inventory.example/box/12">
+    </label>
+    <div class="row">
+      {{ align_select() }}
+      <label>Copies <input type="number" name="copies" value="1" min="1" max="100"></label>
+    </div>
+    <label class="check"><input type="checkbox" name="inverted_title"> White title on black</label>
+    {{ numbering() }}
+  </form>
+  {{ preview_pane('zebra') }}
+</div>
+{% endblock %}
+{% block scripts %}
+<script>initEditor({{ params | tojson }});</script>
+{% endblock %}

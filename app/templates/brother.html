@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% from "_macros.html" import align_select, numbering, preview_pane %}
+{% block title %}Tape · Labelprinter{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Tape label</h1>
+  <span class="chip" id="brother-status">Brother PT-P710BT · checking…</span>
+</div>
+<div class="editor">
+  <form id="label-form" data-printer="brother" class="card">
+    <label>Text <span class="muted">(each line = a line on the tape)</span>
+      <textarea name="text" rows="3" placeholder="PC-042" autofocus></textarea>
+    </label>
+    <label class="check"><input type="checkbox" name="separate_lines">
+      Each line is a separate label <span class="muted">(use <code>|</code> for a line break within a label)</span></label>
+    <label>QR code <span class="muted">(optional)</span>
+      <input name="qr" placeholder="serial, URL, …">
+    </label>
+    <div class="row">
+      <label>Tape
+        <select name="tape_mm" data-nullable>
+          <option value="">Auto-detect</option>
+          {% for t in tapes %}<option value="{{ t }}">{{ '3.5' if t == 4 else t }} mm</option>{% endfor %}
+        </select>
+      </label>
+      <label>Font
+        <select name="font">
+          <option value="bold">Bold</option>
+          <option value="condensed">Condensed</option>
+          <option value="regular">Regular</option>
+        </select>
+      </label>
+      {{ align_select() }}
+    </div>
+    <div class="row">
+      <label>Min. length <span class="muted">mm</span>
+        <input type="number" name="min_length_mm" value="0" min="0" max="500" step="1"></label>
+      <label>Copies <input type="number" name="copies" value="1" min="1" max="50"></label>
+    </div>
+    <label class="check"><input type="checkbox" name="border"> Border</label>
+    <fieldset class="flag">
+      <label class="check"><input type="checkbox" name="flag"> Cable flag
+        <span class="muted">(text twice, the middle wraps around the cable)</span></label>
+      <label>Cable diameter <span class="muted">mm</span>
+        <input type="number" name="cable_diameter_mm" value="6" min="1" max="60" step="0.5"></label>
+    </fieldset>
+    {{ numbering() }}
+  </form>
+  {{ preview_pane('tape') }}
+</div>
+{% endblock %}
+{% block scripts %}
+<script>initEditor({{ params | tojson }}); watchBrother();</script>
+{% endblock %}

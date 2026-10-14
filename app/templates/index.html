@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% from "_macros.html" import history_table %}
+{% block content %}
+<div class="printers">
+  <a class="card printer" href="/zebra">
+    <div class="icon">📦</div>
+    <div>
+      <h2>Box label</h2>
+      <p class="muted">Zebra GK420d</p>
+      <span class="chip" id="zebra-status">checking…</span>
+    </div>
+  </a>
+  <a class="card printer" href="/brother">
+    <div class="icon">🔌</div>
+    <div>
+      <h2>Tape label</h2>
+      <p class="muted">Brother PT-P710BT · computers, cables</p>
+      <span class="chip" id="brother-status">checking…</span>
+    </div>
+  </a>
+</div>
+{% if recent %}
+<h2 class="section">Recent</h2>
+{{ history_table(recent) }}
+<p><a href="/history">All history →</a></p>
+{% endif %}
+{% endblock %}
+{% block scripts %}<script>pollStatus();</script>{% endblock %}

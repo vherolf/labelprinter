@@ -1,0 +1,143 @@
+:root {
+  --bg: #f4f5f7;
+  --card: #ffffff;
+  --text: #1d2126;
+  --muted: #6b7380;
+  --line: #dde1e6;
+  --accent: #2563eb;
+  --accent-text: #ffffff;
+  --ok: #15803d;
+  --bad: #b91c1c;
+  --checker: #e9ecef;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15181c;
+    --card: #1e2227;
+    --text: #e6e8eb;
+    --muted: #9099a5;
+    --line: #2e343b;
+    --accent: #4f8cff;
+    --ok: #4ade80;
+    --bad: #f87171;
+    --checker: #262b31;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+a { color: var(--accent); text-decoration: none; }
+code { background: var(--checker); padding: 0 .3em; border-radius: 4px; font-size: .9em; }
+.muted { color: var(--muted); font-weight: normal; }
+.nowrap { white-space: nowrap; }
+
+header.top {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1.5rem;
+  padding: .75rem 1.25rem; background: var(--card); border-bottom: 1px solid var(--line);
+}
+.brand { font-weight: 700; color: var(--text); font-size: 1.1rem; }
+nav { display: flex; gap: .25rem; flex-wrap: wrap; }
+nav a { color: var(--text); padding: .35rem .75rem; border-radius: 8px; }
+nav a small { color: var(--muted); }
+nav a:hover { background: var(--checker); }
+nav a.active { background: var(--accent); color: var(--accent-text); }
+nav a.active small { color: inherit; opacity: .8; }
+
+main { max-width: 1200px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
+h1 { margin: 0; font-size: 1.5rem; }
+h2 { margin: 0 0 .2rem; font-size: 1.15rem; }
+h2.section { margin: 2rem 0 .75rem; }
+.page-head { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; margin-bottom: 1rem; }
+
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 1.1rem; }
+
+.chip {
+  display: inline-block; font-size: .82rem; padding: .15rem .65rem; border-radius: 999px;
+  background: var(--checker); color: var(--muted);
+}
+.chip.ok { color: var(--ok); }
+.chip.bad { color: var(--bad); }
+
+/* index */
+.printers { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+.printer { display: flex; gap: 1rem; align-items: center; color: var(--text); transition: border-color .15s; }
+.printer:hover { border-color: var(--accent); }
+.printer .icon { font-size: 2.6rem; }
+.printer p { margin: 0 0 .4rem; }
+
+/* editor */
+.editor { display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 1.25rem; align-items: start; }
+@media (max-width: 860px) { .editor { grid-template-columns: 1fr; } }
+
+form label { display: block; margin-bottom: .85rem; font-weight: 600; font-size: .9rem; }
+form label.check { display: flex; gap: .5rem; align-items: baseline; font-weight: 500; }
+input, textarea, select {
+  display: block; width: 100%; margin-top: .3rem; padding: .5rem .6rem;
+  font: inherit; font-weight: normal; color: var(--text);
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+}
+input[type=checkbox] { display: inline; width: auto; margin: 0; accent-color: var(--accent); }
+textarea { resize: vertical; }
+input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.row { display: flex; flex-wrap: wrap; gap: 0 .75rem; }
+.row > label { flex: 1 1 110px; }
+fieldset.flag { border: 1px solid var(--line); border-radius: 8px; padding: .75rem .75rem 0; margin: 0 0 .85rem; }
+details.numbering { border-top: 1px solid var(--line); padding-top: .75rem; }
+details.numbering summary { cursor: pointer; font-weight: 600; font-size: .9rem; }
+.hint { font-size: .85rem; color: var(--muted); }
+
+.preview-pane { position: sticky; top: 1rem; }
+.preview-box {
+  display: flex; align-items: center; justify-content: center; min-height: 260px; padding: 1.5rem;
+  border-radius: 12px; border: 1px solid var(--line);
+  background: repeating-conic-gradient(var(--checker) 0 25%, var(--bg) 0 50%) 0 0 / 20px 20px;
+  overflow-x: auto;
+}
+#preview { max-width: 100%; box-shadow: 0 2px 10px rgba(0, 0, 0, .25); image-rendering: pixelated; }
+.preview-box.zebra #preview { border-radius: 6px; width: 100%; max-width: 640px; }
+.preview-box.tape { justify-content: flex-start; }
+.preview-box.tape #preview { height: 120px; max-width: none; margin: auto; }
+#preview:not([src]) { visibility: hidden; }
+#preview-info { margin: .6rem 0; font-size: .9rem; }
+#warnings { color: var(--bad); margin: 0 0 .75rem; padding-left: 1.2rem; }
+#warnings:empty { display: none; }
+
+button, .btn {
+  font: inherit; cursor: pointer; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--card); color: var(--text); padding: .3rem .7rem; display: inline-block;
+}
+button:hover, .btn:hover { border-color: var(--accent); }
+button.primary {
+  width: 100%; padding: .8rem; font-size: 1.05rem; font-weight: 600;
+  background: var(--accent); color: var(--accent-text); border: none;
+}
+button.primary kbd { font: inherit; font-size: .75rem; opacity: .7; margin-left: .4rem; }
+button.busy { opacity: .6; cursor: progress; }
+@media (hover: none) { button.primary kbd { display: none; } }
+
+/* history */
+.table-wrap { padding: 0; overflow-x: auto; }
+table.history { width: 100%; border-collapse: collapse; }
+table.history td { padding: .55rem .8rem; border-bottom: 1px solid var(--line); }
+table.history tr:last-child td { border-bottom: none; }
+td.summary { width: 100%; }
+td.actions { text-align: right; }
+.tag { font-size: .75rem; font-weight: 600; padding: .1rem .5rem; border-radius: 6px; }
+.tag.zebra { background: #fde68a; color: #713f12; }
+.tag.brother { background: #bfdbfe; color: #1e3a8a; }
+
+#toast {
+  position: fixed; left: 50%; bottom: 1.5rem; transform: translateX(-50%);
+  max-width: calc(100% - 2rem); padding: .75rem 1.1rem; border-radius: 10px;
+  color: #fff; font-weight: 500; box-shadow: 0 6px 24px rgba(0, 0, 0, .25);
+}
+#toast.ok { background: #15803d; }
+#toast.err { background: #b91c1c; }
+#toast[hidden] { display: none; }

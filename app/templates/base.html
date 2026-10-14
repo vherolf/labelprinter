@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Labelprinter{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="/">🏷️ Labelprinter</a>
+    <nav>
+      <a href="/zebra" {% if request.url.path == '/zebra' %}class="active"{% endif %}>Boxes <small>Zebra</small></a>
+      <a href="/brother" {% if request.url.path == '/brother' %}class="active"{% endif %}>Tape <small>Brother</small></a>
+      <a href="/history" {% if request.url.path == '/history' %}class="active"{% endif %}>History</a>
+    </nav>
+  </header>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+  <div id="toast" hidden></div>
+  <script src="{{ url_for('static', path='app.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

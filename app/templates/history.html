@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% from "_macros.html" import history_table %}
+{% block title %}History · Labelprinter{% endblock %}
+{% block content %}
+<div class="page-head"><h1>History</h1></div>
+{% if entries %}{{ history_table(entries) }}{% else %}<p class="muted">Nothing printed yet.</p>{% endif %}
+{% endblock %}
