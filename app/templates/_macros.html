@@ -17,6 +17,18 @@
     <label>Start <input type="number" name="counter_start" value="1"></label>
     <label>Count <input type="number" name="counter_count" value="1" min="1" max="200"></label>
   </div>
+  <div class="batch">
+    <p class="hint">Or print one label per row of a <b>CSV / Excel</b> file. The first row holds the
+      column names - use them as placeholders, e.g. <code>{Room}</code> or <code>PC-{Serial}</code>.</p>
+    <label class="file btn">Choose file…
+      <input type="file" id="batch-file" accept=".csv,.tsv,.txt,.xlsx,.xlsm" hidden></label>
+    <div id="batch-info" hidden>
+      <div><b id="batch-name"></b> <span class="muted" id="batch-count"></span>
+        <button type="button" class="btn" id="batch-clear">Remove</button></div>
+      <p class="hint">Click a column to insert it:</p>
+      <div id="batch-columns"></div>
+    </div>
+  </div>
 </details>
 {% endmacro %}
 
@@ -24,6 +36,11 @@
 <section class="preview-pane">
   <div class="preview-box {{ extra }}">
     <img id="preview" alt="Label preview">
+  </div>
+  <div id="row-nav" hidden>
+    <button type="button" class="btn" id="row-prev" aria-label="Previous row">◀</button>
+    <span id="row-label"></span>
+    <button type="button" class="btn" id="row-next" aria-label="Next row">▶</button>
   </div>
   <div id="preview-info" class="muted"></div>
   <ul id="warnings"></ul>

@@ -18,13 +18,27 @@ FONTS = {
 COUNTER = re.compile(r"\{n(?::0?(\d+))?\}")
 
 
-def substitute(text: str, n: int) -> str:
-    """Replace {n} / {n:3} / {n:03} with the (zero-padded) counter value."""
-    return COUNTER.sub(lambda m: str(n).zfill(int(m.group(1) or 0)), text)
+PLACEHOLDER = re.compile(r"\{([^{}\n]+)\}")
+
+
+def substitute(text: str, n: int, row: dict[str, str] | None = None) -> str:
+    """Replace {n} / {n:3} / {n:03} with the (zero-padded) counter value and,
+    with a batch row, {Column} with that row's value (column names are case-insensitive)."""
+    text = COUNTER.sub(lambda m: str(n).zfill(int(m.group(1) or 0)), text)
+    if row:
+        values = {k.strip().lower(): v for k, v in row.items()}
+        text = PLACEHOLDER.sub(lambda m: values.get(m.group(1).strip().lower(), m.group(0)), text)
+    return text
 
 
 def has_counter(*texts: str) -> bool:
     return any(COUNTER.search(t) for t in texts)
+
+
+def unknown_placeholders(columns, *texts: str) -> list[str]:
+    known = {c.strip().lower() for c in columns}
+    found = {m.group(1) for t in texts for m in PLACEHOLDER.finditer(t) if not COUNTER.fullmatch(m.group(0))}
+    return sorted(f for f in found if f.strip().lower() not in known)
 
 
 @lru_cache(maxsize=512)

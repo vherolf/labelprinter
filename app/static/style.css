@@ -83,6 +83,8 @@ input, textarea, select {
   font: inherit; font-weight: normal; color: var(--text);
   background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
 }
+input[hidden] { display: none; }
+input:disabled { opacity: .45; }
 input[type=checkbox] { display: inline; width: auto; margin: 0; accent-color: var(--accent); }
 textarea { resize: vertical; }
 input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
@@ -92,6 +94,14 @@ fieldset.flag { border: 1px solid var(--line); border-radius: 8px; padding: .75r
 details.numbering { border-top: 1px solid var(--line); padding-top: .75rem; }
 details.numbering summary { cursor: pointer; font-weight: 600; font-size: .9rem; }
 .hint { font-size: .85rem; color: var(--muted); }
+.batch { border-top: 1px dashed var(--line); margin-top: .25rem; }
+form label.file { display: inline-block; margin: 0 0 .5rem; font-weight: 500; }
+#batch-info .btn { margin-left: .5rem; font-size: .85rem; padding: .1rem .5rem; }
+#batch-columns { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .5rem; }
+#batch-columns button { font-size: .85rem; padding: .1rem .55rem; font-family: ui-monospace, monospace; }
+#row-nav { display: flex; align-items: center; justify-content: center; gap: .75rem; margin-top: .6rem; }
+#row-nav[hidden] { display: none; }
+#row-label { font-size: .9rem; min-width: 7rem; text-align: center; }
 
 .preview-pane { position: sticky; top: 1rem; }
 .preview-box {

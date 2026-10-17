@@ -45,19 +45,89 @@ function fillForm(form, params) {
     if (el.type === "checkbox") el.checked = !!value;
     else el.value = value ?? "";
   }
-  if ((params?.counter_count ?? 1) > 1) form.querySelector("details.numbering").open = true;
+  if ((params?.counter_count ?? 1) > 1 || params?.rows?.length) form.querySelector("details.numbering").open = true;
+}
+
+// Batch rows from a CSV / Excel file; {Column} placeholders are filled per row.
+function initBatch(form, params, onChange) {
+  const state = { name: "", rows: [], row: 0 };
+  let lastField = form.querySelector("textarea, input[type=text], input:not([type])");
+  form.addEventListener("focusin", (ev) => {
+    if (ev.target.matches("textarea, input[type=text], input:not([type])")) lastField = ev.target;
+  });
+
+  const show = () => {
+    const on = state.rows.length > 0;
+    $("#batch-info").hidden = !on;
+    $("#row-nav").hidden = !on;
+    form.elements.counter_count.disabled = on;
+    if (!on) return;
+    $("#batch-name").textContent = state.name;
+    $("#batch-count").textContent = `${state.rows.length} row${state.rows.length === 1 ? "" : "s"}`;
+    $("#row-label").textContent = `Row ${state.row + 1} of ${state.rows.length}`;
+    $("#row-prev").disabled = state.row === 0;
+    $("#row-next").disabled = state.row === state.rows.length - 1;
+    $("#batch-columns").replaceChildren(...Object.keys(state.rows[0]).map((col) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "btn";
+      b.textContent = `{${col}}`;
+      b.title = `e.g. "${state.rows[0][col]}"`;
+      return b;
+    }));
+  };
+  const set = (name, rows) => {
+    Object.assign(state, { name, rows, row: 0 });
+    show();
+    onChange();
+  };
+
+  $("#batch-columns").addEventListener("click", (ev) => {
+    const b = ev.target.closest("button");
+    if (!b || !lastField) return;
+    const { selectionStart: a = lastField.value.length, selectionEnd: z = a } = lastField;
+    lastField.value = lastField.value.slice(0, a) + b.textContent + lastField.value.slice(z);
+    lastField.focus();
+    lastField.setSelectionRange(a + b.textContent.length, a + b.textContent.length);
+    onChange();
+  });
+  $("#batch-file").addEventListener("change", async (ev) => {
+    const file = ev.target.files[0];
+    ev.target.value = "";
+    if (!file) return;
+    const body = new FormData();
+    body.append("file", file);
+    try {
+      const res = await fetch("/api/table", { method: "POST", body });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.detail || res.statusText);
+      set(data.name, data.rows);
+      toast(`${data.rows.length} rows loaded from ${data.name}`);
+    } catch (e) {
+      toast(e.message, false);
+    }
+  });
+  $("#batch-clear").addEventListener("click", () => set("", []));
+  const step = (d) => { state.row = Math.max(0, Math.min(state.rows.length - 1, state.row + d)); show(); onChange(); };
+  $("#row-prev").addEventListener("click", () => step(-1));
+  $("#row-next").addEventListener("click", () => step(1));
+
+  if (params?.rows?.length) Object.assign(state, { name: params.rows_name || "", rows: params.rows });
+  show();
+  return () => ({ rows: state.rows, rows_name: state.name, preview_row: state.row });
 }
 
 function initEditor(params) {
   const form = $("#label-form");
   const printer = form.dataset.printer;
   fillForm(form, params);
+  const job = () => ({ ...readForm(form), ...batch() });
 
   let seq = 0;
   const preview = async () => {
     const mine = ++seq;
     try {
-      const data = await api(`/api/${printer}/preview`, readForm(form));
+      const data = await api(`/api/${printer}/preview`, job());
       if (mine !== seq) return;
       $("#preview").src = data.image;
       const info = [];
@@ -80,6 +150,7 @@ function initEditor(params) {
   form.addEventListener("input", schedule);
   form.addEventListener("change", schedule);
   window.refreshPreview = preview;
+  const batch = initBatch(form, params, preview);
   preview();
 
   const btn = $("#print-btn");
@@ -89,7 +160,7 @@ function initEditor(params) {
     btn.disabled = true;
     btn.classList.add("busy");
     try {
-      const data = await api(`/api/${printer}/print`, readForm(form));
+      const data = await api(`/api/${printer}/print`, job());
       toast(data.message);
     } catch (e) {
       toast(e.message, false);

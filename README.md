@@ -16,6 +16,10 @@ Every label is rendered with Pillow, so the preview in the browser is exactly wh
 - **Tape labels:** 1–n lines auto-sized to the loaded tape, QR code, border, min. length,
   **cable flag** (text on both ends, middle wraps around the cable), one label per line
 - **Numbering:** `{n}` / `{n:03}` in any field + start/count → `BOX-001`, `BOX-002`, …
+- **Batch from CSV / Excel:** upload a `.csv` or `.xlsx` (first row = column names, first sheet only)
+  and use the columns as placeholders, e.g. title `{Room}`, QR `https://inventory/box/{ID}`.
+  One label per row (max 200); step through the rows in the preview. CSV separator (`,` `;` tab)
+  and encoding (UTF-8 / Windows-1252) are detected automatically. `{n}` counts the rows.
 - History with *Edit* and *Reprint*
 
 ## Run
