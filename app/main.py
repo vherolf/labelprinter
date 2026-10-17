@@ -3,7 +3,7 @@ import io
 from typing import Literal
 
 from fastapi import FastAPI, HTTPException, Request, UploadFile
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from PIL import Image, ImageOps
@@ -36,7 +36,7 @@ class ZebraJob(BaseModel):
 class BrotherJob(BaseModel):
     text: str = ""
     separate_lines: bool = False
-    font: Literal["bold", "regular", "condensed"] = "bold"
+    font: Literal["bold", "regular", "condensed"] = "regular"
     qr: str = ""
     align: Align = "center"
     flag: bool = False
@@ -110,6 +110,21 @@ def png_data_url(img: Image.Image) -> str:
     buf = io.BytesIO()
     img.save(buf, "PNG")
     return "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
+
+
+def pdf_response(pages: list[Image.Image], dpi: float, name: str) -> Response:
+    """One label per page at its real size."""
+    buf = io.BytesIO()
+    pages = [p.convert("RGB") for p in pages]
+    pages[0].save(buf, "PDF", resolution=dpi, save_all=True, append_images=pages[1:], title=name)
+    return Response(buf.getvalue(), media_type="application/pdf",
+                    headers={"Content-Disposition": f'attachment; filename="{name}.pdf"'})
+
+
+def pdf_name(prefix: str, job: Job) -> str:
+    stem = job.rows_name.rsplit(".", 1)[0] if job.rows else ""
+    safe = "".join(c if c.isalnum() or c in "-_" else "_" for c in stem)
+    return f"{prefix}-{safe}" if safe else prefix
 
 
 def brother_preview(img: Image.Image, tape_mm: int, tape_hex: str, text_hex: str) -> Image.Image:
@@ -211,13 +226,26 @@ def zebra_print(job: ZebraJob, request: Request):
     return {"message": f"{len(images) * job.copies} label(s) sent. {msg}"}
 
 
+@app.post("/api/zebra/pdf")
+def zebra_pdf(job: ZebraJob):
+    images, _ = zebra_labels(job)
+    return pdf_response([img for img in images for _ in range(job.copies)],
+                        config.ZEBRA_DOTS_PER_MM * 25.4, pdf_name("boxes", job))
+
+
+def brother_tape(job: BrotherJob, st: dict) -> int:
+    """Tape width for preview / PDF: the selected one, else the loaded one, else 12 mm."""
+    tape_mm = job.tape_mm or st.get("tape_mm") or 12
+    if tape_mm not in render.BROTHER_PRINTABLE:
+        raise HTTPException(400, f"Unsupported tape width {tape_mm} mm")
+    return tape_mm
+
+
 @app.post("/api/brother/preview")
 def brother_preview_api(job: BrotherJob):
     st = brother.printer.status()
     detected = st.get("tape_mm") or None
-    tape_mm = job.tape_mm or detected or 12
-    if tape_mm not in render.BROTHER_PRINTABLE:
-        raise HTTPException(400, f"Unsupported tape width {tape_mm} mm")
+    tape_mm = brother_tape(job, st)
     images, warnings = brother_labels(job, tape_mm)
     colors = (st.get("tape_hex", "#ffffff"), st.get("text_hex", "#111111")) \
         if detected == tape_mm else ("#ffffff", "#111111")
@@ -232,6 +260,14 @@ def brother_preview_api(job: BrotherJob):
         "length_mm": round(length_mm, 1),
         "warnings": warnings,
     }
+
+
+@app.post("/api/brother/pdf")
+def brother_pdf(job: BrotherJob):
+    tape_mm = brother_tape(job, brother.printer.status())
+    images, _ = brother_labels(job, tape_mm)
+    pages = [brother_preview(img, tape_mm, "#ffffff", "#000000") for img in images]
+    return pdf_response(pages, config.BROTHER_DPI, pdf_name("tape", job))
 
 
 @app.post("/api/brother/print")

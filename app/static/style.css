@@ -129,6 +129,7 @@ button.primary {
   background: var(--accent); color: var(--accent-text); border: none;
 }
 button.primary kbd { font: inherit; font-size: .75rem; opacity: .7; margin-left: .4rem; }
+button.secondary { width: 100%; margin-top: .5rem; padding: .55rem; }
 button.busy { opacity: .6; cursor: progress; }
 @media (hover: none) { button.primary kbd { display: none; } }
 

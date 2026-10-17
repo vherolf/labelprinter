@@ -170,6 +170,31 @@ function initEditor(params) {
     }
   };
   form.addEventListener("submit", print);
+
+  const pdfBtn = $("#pdf-btn");
+  pdfBtn.addEventListener("click", async () => {
+    pdfBtn.disabled = true;
+    pdfBtn.classList.add("busy");
+    try {
+      const res = await fetch(`/api/${printer}/pdf`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(job()),
+      });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).detail || res.statusText);
+      const name = res.headers.get("Content-Disposition")?.match(/filename="(.+)"/)?.[1] || "labels.pdf";
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(await res.blob());
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+    } catch (e) {
+      toast("PDF failed: " + e.message, false);
+    } finally {
+      pdfBtn.disabled = false;
+      pdfBtn.classList.remove("busy");
+    }
+  });
   document.addEventListener("keydown", (ev) => {
     if (ev.key === "Enter" && (ev.ctrlKey || ev.metaKey)) print(ev);
   });

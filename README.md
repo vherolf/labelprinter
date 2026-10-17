@@ -20,6 +20,7 @@ Every label is rendered with Pillow, so the preview in the browser is exactly wh
   and use the columns as placeholders, e.g. title `{Room}`, QR `https://inventory/box/{ID}`.
   One label per row (max 200); step through the rows in the preview. CSV separator (`,` `;` tab)
   and encoding (UTF-8 / Windows-1252) are detected automatically. `{n}` counts the rows.
+- **Download PDF:** the same labels as a PDF, one label per page at real size (all rows / copies)
 - History with *Edit* and *Reprint*
 
 ## Run
